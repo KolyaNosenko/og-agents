@@ -2,26 +2,39 @@ from langchain_core.prompts import PromptTemplate
 
 from src.og_agents.documents import OntologySourceDocument
 
-# PROMPT_TEMPLATE_EN = """
+PROMPT_TEMPLATE = """
+You are an expert in Specification and Knowledge Representation.
+Your purpose is to develop competency questions for ontology.
+Competency questions are a natural language question that specifies the requirements of an ontology and can be answered by that ontology.
+Derive competency questions, using the provided documents.
+
+Documents: {documents}
+
+Return ONLY the competency questions, no other text.
+Generate no more than 10 competency questions.
+"""
+
+# PROMPT_TEMPLATE = """
 # You are an expert in Specification and Knowledge Representation.
-# Your purpose is to develop a reference ontology.
+# Your purpose is to develop competency questions for ontology.
 # Competency questions are a natural language question that specifies the requirements of an ontology and can be answered by that ontology.
 # Derive competency questions, using the provided documents.
+#
 # Documents: {documents}
 #
 # Return ONLY the competency questions, no other text.
 # """
 # TODO add normal few shot prompting
-PROMPT_TEMPLATE = """
-Ти є експертом зі специфікації та представлення знань.
-Твоя мета — розробити питання компетентності для еталонної онтології.
-Питання компетентності — це питання природною мовою, які задають вимоги до онтології та на які ця онтологія повинна вміти відповідати.
-Сформулюй питання компетентності, використовуючи надані документи.
-
-Документи: {documents}
-
-Поверни **ЛИШЕ** питання компетентності, без будь-якого іншого тексту.
-"""
+# PROMPT_TEMPLATE = """
+# Ти є експертом зі специфікації та представлення знань.
+# Твоя мета — розробити питання компетентності для еталонної онтології.
+# Питання компетентності — це питання природною мовою, які задають вимоги до онтології та на які ця онтологія повинна вміти відповідати.
+# Сформулюй питання компетентності, використовуючи надані документи.
+#
+# Документи: {documents}
+#
+# Поверни **ЛИШЕ** питання компетентності, без будь-якого іншого тексту.
+# """
 
 class GenerateCompetencyQuestionsPrompt:
     _template: PromptTemplate

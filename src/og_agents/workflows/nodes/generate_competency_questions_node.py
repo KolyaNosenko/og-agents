@@ -19,6 +19,8 @@ class GenerateCompetencyQuestionsNode(BaseNode):
         response = language_model.invoke(prompt)
         competency_questions = response.content
 
+        print('competency questions:', competency_questions)
+
         return {
             'competency_questions': competency_questions
         }

@@ -17,8 +17,11 @@ class GenerateOntologyNode(BaseNode):
         documents = state.get('documents')
         prompt = GenerateOntologyPrompt().format(competency_questions, documents)
 
+        print("Start generation ontology:")
         result = language_model.invoke(prompt)
         ontology_ttl = result.content
+
+        print("Ontology generated:", ontology_ttl)
 
         return {
             'ontology_ttl': ontology_ttl
