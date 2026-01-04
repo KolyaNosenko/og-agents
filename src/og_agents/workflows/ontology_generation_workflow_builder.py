@@ -10,7 +10,7 @@ from src.og_agents.workflows.nodes import (
     GenerateOntologyNode,
     SaveOntologyNode,
     OOPSOntologyValidationNode,
-    OntologyReasonerNode
+    OntologyConsistencyValidationNode
 )
 from src.og_agents.workflows.requests import GenerateOntologyRequest
 
@@ -42,12 +42,12 @@ class OntologyGenerationWorkflowBuilder:
         generate_og_node = GenerateOntologyNode()
         save_og_node = SaveOntologyNode()
         oops_validation_node = OOPSOntologyValidationNode()
-        ontology_reasoner_node = OntologyReasonerNode()
+        ontology_consistency_validation_node = OntologyConsistencyValidationNode()
 
         self._state_graph.add_node(generate_cq_node.name, generate_cq_node)
         self._state_graph.add_node(generate_og_node.name, generate_og_node)
         self._state_graph.add_node(oops_validation_node.name, oops_validation_node)
-        self._state_graph.add_node(ontology_reasoner_node.name, ontology_reasoner_node)
+        self._state_graph.add_node(ontology_consistency_validation_node.name, ontology_consistency_validation_node)
         self._state_graph.add_node(save_og_node.name, save_og_node)
 
         self._state_graph.add_edge(START, generate_cq_node.name)
@@ -55,9 +55,9 @@ class OntologyGenerationWorkflowBuilder:
         self._state_graph.add_edge(generate_cq_node.name, generate_og_node.name)
         self._state_graph.add_edge(generate_og_node.name, oops_validation_node.name)
         self._state_graph.add_edge(oops_validation_node.name, save_og_node.name)
-        self._state_graph.add_edge(save_og_node.name, ontology_reasoner_node.name)
+        self._state_graph.add_edge(save_og_node.name, ontology_consistency_validation_node.name)
 
-        self._state_graph.add_edge(ontology_reasoner_node.name, END)
+        self._state_graph.add_edge(ontology_consistency_validation_node.name, END)
 
 
 

@@ -11,7 +11,6 @@ Derive competency questions, using the provided documents.
 Documents: {documents}
 
 Return ONLY the competency questions, no other text.
-Generate no more than 10 competency questions.
 """
 
 # PROMPT_TEMPLATE = """
