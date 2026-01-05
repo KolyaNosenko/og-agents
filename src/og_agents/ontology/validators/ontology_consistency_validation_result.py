@@ -1,4 +1,4 @@
-from src.og_agents.ontology.validators.ontology_validation_result import OntologyValidationResult
+from og_agents.ontology.validators.ontology_validation_result import OntologyValidationResult
 
 class OntologyConsistencyValidationResult(OntologyValidationResult):
     _error: None | Exception

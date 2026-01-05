@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from src.og_agents.ontology.competency_question import CompetencyQuestion
+from og_agents.ontology.competency_question import CompetencyQuestion
 
 class CompetencyQuestions(BaseModel):
     """Список питань компетентності до онтології"""

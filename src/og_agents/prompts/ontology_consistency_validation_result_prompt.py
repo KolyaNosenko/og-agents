@@ -1,20 +1,36 @@
 from langchain_core.prompts import PromptTemplate
 
-from src.og_agents.ontology.validators import OntologyConsistencyValidationResult
+from og_agents.ontology.validators import OntologyConsistencyValidationResult
+
+# PROMPT_TEMPLATE = """
+# You are an expert in ontology creation and validation.
+# Your task is to fix the existing ontology based on validation results from reasoner.
+# Resolve every problems in provided ontology that reasoner provided.
+#
+# Important:
+# Return ONLY the final fixed RDF, without any additional text.
+# Bind all ontology resources to the ":" prefix.
+#
+# # Existing ontology:
+# {ontology}
+#
+# # Reasoner validation result:
+# {error_message}
+# """.strip()
 
 PROMPT_TEMPLATE = """
-You are an expert in ontology creation and validation.
-Your task is to fix the existing ontology based on validation results from reasoner.
-Resolve every problems in provided ontology that reasoner provided.
+Ти є експертом зі створення та валідації онтологій.
+Твоє завдання — виправити наявну онтологію на основі результатів валідації, отриманих після формальної перевірки.
+Виправ всі проблеми в наданій онтології, які виявлено після формальної перевірки.
 
-Important:
-Return ONLY the final fixed RDF, without any additional text.
-Bind all ontology resources to the ":" prefix.
+Важливо:
+1. Поверни ЛИШЕ фінальний виправлений RDF, без будь-якого іншого тексту.
+2. Прив’яжи усі ресурси, що додаються до онтології, до префікса ":".
 
-# Existing ontology:
+# Наявна онтологія:
 {ontology}
 
-# Reasoner validation result:
+# Результат формальної перевірки:
 {error_message}
 """.strip()
 

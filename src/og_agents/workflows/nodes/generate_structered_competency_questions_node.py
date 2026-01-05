@@ -1,10 +1,10 @@
 from langgraph.runtime import Runtime
 
-from src.og_agents.prompts import GenerateCompetencyQuestionsPrompt
-from src.og_agents.workflows.workflow_context import WorkflowContext
-from src.og_agents.workflows.nodes.base_node import BaseNode
-from src.og_agents.state import GenerationState
-from src.og_agents.ontology import CompetencyQuestions
+from og_agents.prompts import GenerateCompetencyQuestionsPrompt
+from og_agents.workflows.workflow_context import WorkflowContext
+from og_agents.workflows.nodes.base_node import BaseNode
+from og_agents.state import GenerationState
+from og_agents.ontology import CompetencyQuestions
 
 NODE_NAME = 'generate_competency_questions'
 

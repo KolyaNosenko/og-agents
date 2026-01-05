@@ -2,10 +2,10 @@ from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from src.og_agents.config import AppConfig
-from src.og_agents.state import GenerationState
-from src.og_agents.workflows.workflow_context import WorkflowContext
-from src.og_agents.workflows.nodes import (
+from og_agents.config import AppConfig
+from og_agents.state import GenerationState
+from og_agents.workflows.workflow_context import WorkflowContext
+from og_agents.workflows.nodes import (
     GenerateCompetencyQuestionsNode,
     GenerateOntologyNode,
     SaveOntologyNode,
@@ -13,7 +13,7 @@ from src.og_agents.workflows.nodes import (
     OntologyConsistencyValidationNode,
     OntologyRDFSyntaxValidationNode,
 )
-from src.og_agents.workflows.requests import GenerateOntologyRequest
+from og_agents.workflows.requests import GenerateOntologyRequest
 
 
 class OntologyGenerationWorkflowBuilder:

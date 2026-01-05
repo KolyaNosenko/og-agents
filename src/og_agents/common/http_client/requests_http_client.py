@@ -1,7 +1,7 @@
 import requests
 from requests import Response
 
-from src.og_agents.common.http_client.http_client import HttpClient
+from og_agents.common.http_client.http_client import HttpClient
 
 class RequestsHttpClient(HttpClient):
     def get(self, url, params=None, **kwargs) -> Response:

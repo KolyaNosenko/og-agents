@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from src.og_agents.config.database_config import DatabaseConfig
+from og_agents.config.database_config import DatabaseConfig
 
 class AppConfig:
     _app_env: str
@@ -8,6 +8,7 @@ class AppConfig:
     _language_model_name: str
     _embeddings_model_name: str
     _oops_api_url: str
+    _oops_ignored_pitfalls: tuple
     _ontology_name: str
     _db = DatabaseConfig
 
@@ -17,6 +18,7 @@ class AppConfig:
         self._language_model_name = os.getenv('LANGUAGE_MODEL_NAME')
         self._embeddings_model_name = os.getenv('EMBEDDINGS_MODEL_NAME')
         self._oops_api_url = os.getenv('OOPS_API_URL')
+        self._oops_ignored_pitfalls = ('P08', 'P13')
         self._ontology_name = os.getenv('ONTOLOGY_NAME')
         self._db = DatabaseConfig()
 
@@ -39,6 +41,10 @@ class AppConfig:
     @property
     def oops_api_url(self):
         return self._oops_api_url
+
+    @property
+    def oops_ignored_pitfalls(self):
+        return self._oops_ignored_pitfalls
 
     @property
     def db(self):

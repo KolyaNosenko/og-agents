@@ -1,4 +1,4 @@
-from src.og_agents.ontology.validators import OntologyValidationResult
+from og_agents.ontology.validators import OntologyValidationResult
 
 
 class OntologyRDFSyntaxValidationResult(OntologyValidationResult):

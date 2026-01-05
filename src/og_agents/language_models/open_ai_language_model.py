@@ -1,7 +1,7 @@
 import os
 from langchain_openai import ChatOpenAI
-from src.og_agents.config import AppConfig
-from src.og_agents.language_models.language_model import LanguageModel
+from og_agents.config import AppConfig
+from og_agents.language_models.language_model import LanguageModel
 
 
 class OpenAILanguageModel(LanguageModel, ChatOpenAI):

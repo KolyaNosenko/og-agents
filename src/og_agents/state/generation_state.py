@@ -1,7 +1,7 @@
 from typing import TypedDict, Annotated
 
-from src.og_agents.documents import OntologySourceDocument
-from src.og_agents.state.reducers import update_documents
+from og_agents.documents import OntologySourceDocument
+from og_agents.state.reducers import update_documents
 
 class GenerationState(TypedDict):
     documents: Annotated[list[OntologySourceDocument], update_documents]

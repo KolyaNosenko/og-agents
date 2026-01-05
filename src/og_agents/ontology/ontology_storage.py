@@ -1,6 +1,6 @@
 from owlready2 import World
 from rdflib import Graph
-from src.og_agents.config import AppConfig
+from og_agents.config import AppConfig
 from io import BytesIO
 
 class OntologyStorage:
@@ -29,3 +29,25 @@ class OntologyStorage:
 
         self._world.save()
         print('Ontology saved to', self._config.db.file_path)
+
+    def load(self):
+        return self._world.get_ontology(self._config.ontology_name)
+
+    def get_world_as_rdf_graph(self):
+        return self._world.as_rdflib_graph()
+
+    def destroy(self):
+        onto = self.load()
+        onto.destroy()
+
+        self._world.save()
+
+    def is_exist(self):
+        onto = self.load()
+
+        return (
+            next(onto.classes(), None) is not None or
+            next(onto.object_properties(), None) is not None or
+            next(onto.data_properties(), None) is not None or
+            next(onto.individuals(), None) is not None
+        )

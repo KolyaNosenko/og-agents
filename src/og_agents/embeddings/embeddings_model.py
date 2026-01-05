@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.og_agents.config import AppConfig
+from og_agents.config import AppConfig
 
 class EmbeddingsModel(ABC):
     @abstractmethod

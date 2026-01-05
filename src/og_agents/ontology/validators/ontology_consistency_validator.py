@@ -1,8 +1,8 @@
 from io import BytesIO
 from rdflib import Graph
 from owlready2 import get_ontology, sync_reasoner_pellet, OwlReadyInconsistentOntologyError
-from src.og_agents.ontology.validators.ontology_consistency_validation_result import OntologyConsistencyValidationResult
-from src.og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
+from og_agents.ontology.validators.ontology_consistency_validation_result import OntologyConsistencyValidationResult
+from og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
 
 class OntologyConsistencyValidator(BaseOntologyValidator):
     def validate_ttl(self, ontology_ttl: str) -> OntologyConsistencyValidationResult:

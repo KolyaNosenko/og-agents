@@ -1,7 +1,7 @@
 from rdflib import Graph
 
-from src.og_agents.ontology.validators.ontology_rdf_syntax_validation_result import OntologyRDFSyntaxValidationResult
-from src.og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
+from og_agents.ontology.validators.ontology_rdf_syntax_validation_result import OntologyRDFSyntaxValidationResult
+from og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
 
 class OntologyRDFSyntaxValidator(BaseOntologyValidator):
     def validate_ttl(self, ontology_ttl: str) -> OntologyRDFSyntaxValidationResult:

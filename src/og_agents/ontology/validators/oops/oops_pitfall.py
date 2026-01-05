@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from src.og_agents.ontology.validators.oops.oops_pitfall_affects import OOPSPitfallAffects
+from og_agents.ontology.validators.oops.oops_pitfall_affects import OOPSPitfallAffects
 
 @dataclass
 class OOPSPitfall:

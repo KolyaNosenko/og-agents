@@ -1,11 +1,11 @@
 from rdflib import Graph
 from requests import Response
 
-from src.og_agents.config import AppConfig
-from src.og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
-from src.og_agents.ontology.validators.ontology_validation_result import OntologyValidationResult
-from src.og_agents.ontology.validators.oops.oops_validation_result import OOPSValidationResult
-from src.og_agents.common.http_client import HttpClient
+from og_agents.config import AppConfig
+from og_agents.ontology.validators.base_ontology_validator import BaseOntologyValidator
+from og_agents.ontology.validators.ontology_validation_result import OntologyValidationResult
+from og_agents.ontology.validators.oops.oops_validation_result import OOPSValidationResult
+from og_agents.common.http_client import HttpClient
 
 REQUEST_BODY_TEMPLATE = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,7 +32,10 @@ class OOPSOntologyValidator(BaseOntologyValidator):
         rdfxml = self._turtle_to_rdfxml(ontology_ttl)
         result = self._call_oops(rdfxml)
 
-        result = OOPSValidationResult.from_raw_xml(result.content)
+        result = OOPSValidationResult.from_raw_xml(
+            result.content,
+            self._config.oops_ignored_pitfalls
+        )
 
         return result
 

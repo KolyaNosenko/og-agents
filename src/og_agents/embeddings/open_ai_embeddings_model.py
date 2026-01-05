@@ -1,8 +1,8 @@
 import os
 from typing import Any
 from langchain_openai import OpenAIEmbeddings
-from src.og_agents.config import AppConfig
-from src.og_agents.embeddings.embeddings_model import EmbeddingsModel
+from og_agents.config import AppConfig
+from og_agents.embeddings.embeddings_model import EmbeddingsModel
 
 class OpenAIEmbeddingsModel(EmbeddingsModel):
     _open_ai_embeddings: OpenAIEmbeddings

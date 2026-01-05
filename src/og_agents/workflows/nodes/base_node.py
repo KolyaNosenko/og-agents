@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from langgraph.runtime import Runtime
 
-from src.og_agents.workflows.workflow_context import WorkflowContext
+from og_agents.workflows.workflow_context import WorkflowContext
 
 
 class BaseNode(ABC):
