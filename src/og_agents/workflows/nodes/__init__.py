@@ -4,6 +4,7 @@ from src.og_agents.workflows.nodes.generate_ontology_node import GenerateOntolog
 from src.og_agents.workflows.nodes.save_ontology_node import SaveOntologyNode
 from src.og_agents.workflows.nodes.oops_ontology_validation_node import OOPSOntologyValidationNode
 from src.og_agents.workflows.nodes.ontology_consistency_validation import OntologyConsistencyValidationNode
+from src.og_agents.workflows.nodes.ontology_rdf_syntax_validation_node import OntologyRDFSyntaxValidationNode
 
 __all__ = [
     'BaseNode',
@@ -11,5 +12,6 @@ __all__ = [
     'GenerateOntologyNode',
     'SaveOntologyNode',
     'OOPSOntologyValidationNode',
-    'OntologyConsistencyValidationNode'
+    'OntologyConsistencyValidationNode',
+    'OntologyRDFSyntaxValidationNode'
 ]

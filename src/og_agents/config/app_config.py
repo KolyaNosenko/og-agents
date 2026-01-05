@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from src.og_agents.config.database_config import DatabaseConfig
 
 class AppConfig:
     _app_env: str
@@ -7,6 +8,8 @@ class AppConfig:
     _language_model_name: str
     _embeddings_model_name: str
     _oops_api_url: str
+    _ontology_name: str
+    _db = DatabaseConfig
 
     def __init__(self):
         self._app_env = os.getenv('APP_ENV', 'dev')
@@ -14,6 +17,8 @@ class AppConfig:
         self._language_model_name = os.getenv('LANGUAGE_MODEL_NAME')
         self._embeddings_model_name = os.getenv('EMBEDDINGS_MODEL_NAME')
         self._oops_api_url = os.getenv('OOPS_API_URL')
+        self._ontology_name = os.getenv('ONTOLOGY_NAME')
+        self._db = DatabaseConfig()
 
     @property
     def model_provider_api_key(self):
@@ -34,6 +39,14 @@ class AppConfig:
     @property
     def oops_api_url(self):
         return self._oops_api_url
+
+    @property
+    def db(self):
+        return self._db
+
+    @property
+    def ontology_name(self):
+        return self._ontology_name
 
     # TODO add validation
     def _validate(self):

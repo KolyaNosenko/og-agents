@@ -10,7 +10,8 @@ from src.og_agents.workflows.nodes import (
     GenerateOntologyNode,
     SaveOntologyNode,
     OOPSOntologyValidationNode,
-    OntologyConsistencyValidationNode
+    OntologyConsistencyValidationNode,
+    OntologyRDFSyntaxValidationNode,
 )
 from src.og_agents.workflows.requests import GenerateOntologyRequest
 
@@ -41,11 +42,13 @@ class OntologyGenerationWorkflowBuilder:
         generate_cq_node = GenerateCompetencyQuestionsNode()
         generate_og_node = GenerateOntologyNode()
         save_og_node = SaveOntologyNode()
+        ontology_rdf_syntax_validation_node = OntologyRDFSyntaxValidationNode()
         oops_validation_node = OOPSOntologyValidationNode()
         ontology_consistency_validation_node = OntologyConsistencyValidationNode()
 
         self._state_graph.add_node(generate_cq_node.name, generate_cq_node)
         self._state_graph.add_node(generate_og_node.name, generate_og_node)
+        self._state_graph.add_node(ontology_rdf_syntax_validation_node.name, ontology_rdf_syntax_validation_node)
         self._state_graph.add_node(oops_validation_node.name, oops_validation_node)
         self._state_graph.add_node(ontology_consistency_validation_node.name, ontology_consistency_validation_node)
         self._state_graph.add_node(save_og_node.name, save_og_node)
@@ -53,11 +56,12 @@ class OntologyGenerationWorkflowBuilder:
         self._state_graph.add_edge(START, generate_cq_node.name)
 
         self._state_graph.add_edge(generate_cq_node.name, generate_og_node.name)
-        self._state_graph.add_edge(generate_og_node.name, oops_validation_node.name)
-        self._state_graph.add_edge(oops_validation_node.name, save_og_node.name)
-        self._state_graph.add_edge(save_og_node.name, ontology_consistency_validation_node.name)
+        self._state_graph.add_edge(generate_og_node.name, ontology_rdf_syntax_validation_node.name)
+        self._state_graph.add_edge(ontology_rdf_syntax_validation_node.name, oops_validation_node.name)
+        self._state_graph.add_edge(oops_validation_node.name, ontology_consistency_validation_node.name)
+        self._state_graph.add_edge(ontology_consistency_validation_node.name, save_og_node.name)
 
-        self._state_graph.add_edge(ontology_consistency_validation_node.name, END)
+        self._state_graph.add_edge(save_og_node.name, END)
 
 
 
