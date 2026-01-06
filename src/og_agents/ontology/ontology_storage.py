@@ -2,6 +2,7 @@ from owlready2 import World
 from rdflib import Graph
 from og_agents.config import AppConfig
 from io import BytesIO
+import os
 
 class OntologyStorage:
     _config: AppConfig
@@ -17,6 +18,11 @@ class OntologyStorage:
     def create_from_ttl(self, ontology_ttl: str):
         rdf_graph = Graph()
         rdf_graph.parse(data=ontology_ttl, format="turtle")
+
+        rdf_graph.serialize(
+            self._config.db.tutle_fallback_path,
+            format="turtle"
+        )
 
         rdfxml_bytes = rdf_graph.serialize(format="xml")
 
@@ -41,6 +47,10 @@ class OntologyStorage:
         onto.destroy()
 
         self._world.save()
+
+        if os.path.exists(self._config.db.tutle_fallback_path):
+            os.remove(self._config.db.tutle_fallback_path)
+
 
     def is_exist(self):
         onto = self.load()

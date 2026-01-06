@@ -4,6 +4,7 @@ from pathlib import Path
 class DatabaseConfig:
     file_name: str
     file_path: str
+    tutle_fallback_path: str
 
     def __init__(self):
         self.file_name = os.environ.get("DATABASE_FILE_NAME")
@@ -13,3 +14,4 @@ class DatabaseConfig:
         # db_path.mkdir(exist_ok=True)
 
         self.file_path = os.path.join(db_path, self.file_name)
+        self.tutle_fallback_path = os.path.join(db_path, "ontology.ttl")
