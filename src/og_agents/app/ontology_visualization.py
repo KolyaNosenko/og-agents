@@ -398,17 +398,4 @@ def visualize_ontology(
             arrows="to",
         )
 
-    # Optional: implement initial zoom via JS injection (PyVis doesn't support it natively)
-    # Keep off by default to avoid surprises; uncomment if needed.
-    #
-    # net.html += f"""
-    # <script>
-    # setTimeout(() => {{
-    #   if (typeof network !== 'undefined') {{
-    #     network.moveTo({{scale: {initial_zoom}}});
-    #   }}
-    # }}, 300);
-    # </script>
-    # """
-
     return net

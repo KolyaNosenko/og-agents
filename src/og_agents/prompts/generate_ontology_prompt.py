@@ -88,6 +88,8 @@ owl:equivalentClass [ rdf:type owl:Restriction ; owl:onProperty :{{relation}} ; 
 Важливо:
 1. Поверни ЛИШЕ фінальний RDF, без будь-якого іншого тексту.
 2. Прив’яжи усі ресурси, що додаються до онтології, до префікса ":".
+3. Користуйся типами xsd.
+4. Не використовуй langString
 
 Документи: {documents}
 

@@ -1,5 +1,6 @@
 import streamlit as st
 from dataclasses import dataclass
+from collections import defaultdict
 from langgraph.graph.state import CompiledStateGraph
 from rdflib import Graph
 import streamlit.components.v1 as components
@@ -21,6 +22,7 @@ from og_agents.language_models import OpenAILanguageModel
 from og_agents.state import GenerationState
 from og_agents.app.ontology_visualization import visualize_ontology
 
+
 @dataclass(frozen=True)
 class AppDependencies:
     app_config: AppConfig
@@ -29,13 +31,13 @@ class AppDependencies:
     language_model: OpenAILanguageModel
     ontology_generation_workflow: CompiledStateGraph[GenerationState, WorkflowContext, GenerateOntologyRequest]
 
+
 @st.cache_resource
 def init_app_dependencies() -> AppDependencies:
     app_config = AppConfig.init()
     storage = OntologyStorage(app_config)
     http_client = RequestsHttpClient()
-    language_model = OpenAILanguageModel.create(app_config)
-
+    language_model = OpenAILanguageModel.create(app_config)  # streaming must be enabled inside this wrapper
     og_generation_workflow = OntologyGenerationWorkflowBuilder.create(app_config).build()
 
     return AppDependencies(
@@ -45,6 +47,7 @@ def init_app_dependencies() -> AppDependencies:
         language_model=language_model,
         ontology_generation_workflow=og_generation_workflow,
     )
+
 
 st.set_page_config(layout="wide")
 
@@ -64,93 +67,127 @@ except Exception as e:
     st.error(f"Помилка завантаження онтології: {e}")
 
 if not st.session_state.is_ontology_exists:
-    st.title('Онтологію не знайдено, створіть нову')
+    st.title("Онтологію не знайдено, створіть нову")
 
-    uploaded_file = st.file_uploader(
-        "Додати файл",
-        type=["txt"],
-    )
+    uploaded_file = st.file_uploader("Додати файл", type=["txt"])
 
     if uploaded_file is not None:
         text = uploaded_file.read().decode("utf-8", errors="ignore")
 
-        st.header('Створення онтології з тексту:')
+        st.header("Створення онтології з тексту:")
         st.caption(text)
 
         workflow_execution = st.container()
         last_step = None
 
-        # TODO add metadata
-        # TODO add structured output
-        for chunk in ontology_generation_workflow.stream(
-            {
-                'documents': [
-                    OntologySourceDocument(page_content=text),
-                ]
-            },
+        llm_placeholders = {}              # step -> st.empty() (created ONLY in custom branch, at the end)
+        llm_buffers = defaultdict(str)     # step -> accumulated tokens
+
+        for evt in ontology_generation_workflow.stream(
+            {"documents": [OntologySourceDocument(page_content=text)]},
             context=WorkflowContext(
                 config=app_dependencies.app_config,
                 http_client=app_dependencies.http_client,
                 language_model=app_dependencies.language_model,
-                ontology_storage=app_dependencies.ontology_storage
+                ontology_storage=app_dependencies.ontology_storage,
             ),
-            stream_mode="custom",
+            stream_mode=["custom", "messages"],
         ):
             with workflow_execution:
-                if 'current_step' not in chunk:
+                mode = None
+                payload = evt
+                if isinstance(evt, tuple):
+                    if len(evt) == 3:
+                        _namespace, mode, payload = evt
+                    elif len(evt) == 2:
+                        a, b = evt
+                        if isinstance(a, str) and a in ("custom", "messages", "updates", "values", "debug"):
+                            mode, payload = a, b
+                        else:
+                            mode, payload = None, evt
+
+                # ----------------------------
+                # 1) LLM token streaming: BUFFER ONLY (never create UI here)
+                # ----------------------------
+                if mode == "messages":
+                    try:
+                        msg, metadata = payload
+                    except Exception:
+                        continue
+
+                    step = metadata.get("langgraph_node") or metadata.get("node") or "LLM"
+                    delta = getattr(msg, "content", "") or ""
+                    if not delta:
+                        continue
+
+                    llm_buffers[step] += delta
+
+                    # Render only if placeholder already exists (created in custom branch)
+                    if step in llm_placeholders:
+                        llm_placeholders[step].code(llm_buffers[step])
+
                     continue
 
-                if not last_step:
-                    st.subheader(f'Поточний крок {chunk['current_step']}', divider=True)
-                    last_step = chunk['current_step']
-                elif last_step != chunk['current_step']:
-                    st.subheader(f'Поточний крок {chunk['current_step']}', divider=True)
-                    last_step = chunk['current_step']
+                # ----------------------------
+                # 2) Your custom stream logic (unchanged `message` semantics)
+                # ----------------------------
+                chunk = payload
+                if not isinstance(chunk, dict) or "current_step" not in chunk:
+                    continue
 
-                if chunk['current_step'] == GENERATE_COMPETENCY_QUESTIONS_NODE_NAME:
-                    if 'competency_questions' in chunk:
-                        st.write(chunk['message'])
-                        st.code(chunk['competency_questions'])
+                step = chunk["current_step"]
+
+                if not last_step:
+                    st.subheader(f"Поточний крок {step}", divider=True)
+                    last_step = step
+                elif last_step != step:
+                    st.subheader(f"Поточний крок {step}", divider=True)
+                    last_step = step
+
+                # ---- your existing rendering (all your writes happen BEFORE LLM placeholder) ----
+                if step == GENERATE_COMPETENCY_QUESTIONS_NODE_NAME:
+                    st.write(chunk["message"])
+
+                elif step == GENERATE_ONTOLOGY_NODE_NAME:
+                    st.write(chunk["message"])
+
+                elif step == ONTOLOGY_RDF_SYNTAX_VALIDATION_NODE_NAME:
+                    if "error" in chunk:
+                        st.write(chunk["message"])
+                        st.warning(chunk["error"])
                     else:
-                        st.write(chunk['message'])
-                elif chunk['current_step'] == GENERATE_ONTOLOGY_NODE_NAME:
-                    if 'ontology_ttl' in chunk:
-                        st.write(chunk['message'])
-                        st.code(chunk['ontology_ttl'])
+                        st.write(chunk["message"])
+
+                elif step == OOPS_ONTOLOGY_VALIDATION_NODE_NAME:
+                    if "error" in chunk:
+                        st.write(chunk["message"])
+                        st.warning(chunk["error"])
                     else:
-                        st.write(chunk['message'])
-                elif chunk['current_step'] == ONTOLOGY_RDF_SYNTAX_VALIDATION_NODE_NAME:
-                    if 'error' in chunk:
-                        st.write(chunk['message'])
-                        st.warning(chunk['error'])
-                    elif 'ontology_ttl' in chunk:
-                        st.write(chunk['message'])
-                        st.code(chunk['ontology_ttl'])
+                        st.write(chunk["message"])
+
+                elif step == ONTOLOGY_CONSISTENCY_VALIDATION_NODE_NAME:
+                    if "error" in chunk:
+                        st.write(chunk["message"])
+                        st.warning(chunk["error"])
+                    elif "ontology_ttl" in chunk:
+                        st.write(chunk["message"])
+                        # st.code(chunk["ontology_ttl"])
                     else:
-                        st.write(chunk['message'])
-                elif chunk['current_step'] == OOPS_ONTOLOGY_VALIDATION_NODE_NAME:
-                    if 'error' in chunk:
-                        st.write(chunk['message'])
-                        st.warning(chunk['error'])
-                    elif 'ontology_ttl' in chunk:
-                        st.write(chunk['message'])
-                        st.code(chunk['ontology_ttl'])
-                    else:
-                        st.write(chunk['message'])
-                elif chunk['current_step'] == ONTOLOGY_CONSISTENCY_VALIDATION_NODE_NAME:
-                    if 'error' in chunk:
-                        st.write(chunk['message'])
-                        st.warning(chunk['error'])
-                    elif 'ontology_ttl' in chunk:
-                        st.write(chunk['message'])
-                        st.code(chunk['ontology_ttl'])
-                    else:
-                        st.write(chunk['message'])
+                        st.write(chunk["message"])
+
                 else:
-                    st.write(chunk['message'])
+                    st.write(chunk.get("message", ""))
+
+                if step not in llm_placeholders:
+                    llm_placeholders[step] = st.empty()
+
+                # If tokens already streamed, show them now (still at the end)
+                if llm_buffers.get(step):
+                    llm_placeholders[step].code(llm_buffers[step])
+
         else:
             with workflow_execution:
-                st.success('Онтологію створено!')
+                st.success("Онтологію створено!")
                 st.divider()
                 st.balloons()
                 show = st.button("🚀 Показати онтологію")
@@ -158,6 +195,7 @@ if not st.session_state.is_ontology_exists:
                 if show:
                     st.session_state.is_ontology_exists = True
                     st.rerun()
+
 
 @st.dialog("RDF (Turtle)")
 def rdf_modal(rdf_graph: Graph):
@@ -172,6 +210,7 @@ def rdf_modal(rdf_graph: Graph):
     )
     st.code(ttl_text, language="turtle")
 
+
 if st.session_state.is_ontology_exists:
     st.title("Онтологія")
 
@@ -180,7 +219,6 @@ if st.session_state.is_ontology_exists:
 
         height = st.slider("Висота (px)", 200, 2000, 700, 50)
         limit = st.slider("Макс. кількість зв'язків", 10, 2000, INITIAL_LIMIT, 10)
-
         initial_zoom = st.slider("Початковий зум", 0.1, 1.0, 0.8, 0.1)
 
         st.divider()
@@ -200,12 +238,9 @@ if st.session_state.is_ontology_exists:
         st.divider()
 
         reset = st.button("🧨 Видалити Онтологію")
-
         if reset:
             ontology_storage.destroy()
-
             st.cache_data.clear()
-
             st.success("Онтологію видалено")
             st.session_state.is_ontology_exists = False
             st.rerun()
@@ -214,7 +249,6 @@ if st.session_state.is_ontology_exists:
         rdf_graph: Graph = ontology_storage.get_world_as_rdf_graph()
 
         show_rdf = st.button("📄 Показати RDF (Turtle)")
-
         if show_rdf:
             rdf_modal(rdf_graph)
 
@@ -237,4 +271,3 @@ if st.session_state.is_ontology_exists:
         components.html(html, height=height + 50, scrolling=True)
     except Exception as e:
         st.error(f"Помилка завантаження графа: {e}")
-
